@@ -73,13 +73,13 @@ if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MA
 			# TODO - Is this even necessary?  Why?
 			# See http://stackoverflow.com/questions/19774778/when-is-it-necessary-to-use-use-the-flag-stdlib-libstdc.
 			add_compile_options(-stdlib=libstdc++)
-			
+
 			# Tell Boost that we're using Clang's libc++.   Not sure exactly why we need to do.
 			add_definitions(-DBOOST_ASIO_HAS_CLANG_LIBCXX)
-			
+
 			# Use fancy colors in the compiler diagnostics
 			add_compile_options(-fcolor-diagnostics)
-			
+
 			# See "How to silence unused command line argument error with clang without disabling it?"
 			# When using -Werror with clang, it transforms "warning: argument unused during compilation" messages
 			# into errors, which makes sense.
@@ -159,6 +159,13 @@ if (PROFILING AND (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_C
 #	set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -lprofiler")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lprofiler")
 endif ()
+
+option(COVERAGE "Build with code coverage support" OFF)
+if(COVERAGE AND (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")))
+  add_compile_options(-g --coverage)
+  set(CMAKE_SHARED_LINKER_FLAGS "--coverage ${CMAKE_SHARED_LINKER_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "--coverage ${CMAKE_EXE_LINKER_FLAGS}")
+endif()
 
 if (PROFILING AND (("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")))
         set(CMAKE_CXX_FLAGS "-g --coverage ${CMAKE_CXX_FLAGS}")

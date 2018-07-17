@@ -14,7 +14,7 @@ defaults:
       command: |
         mkdir -p build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCOVERAGE=ON
         make -j4
   - run_tests: &run_tests
       name: Tests
@@ -25,9 +25,7 @@ defaults:
   - all_artifacts: &all_artifacts
       root: build
       paths:
-        - solc/solc
-        - test/soltest
-        - test/tools/solfuzzer
+        - "*"
 
 version: 2
 jobs:
@@ -188,9 +186,19 @@ jobs:
           name: Install dependencies
           command: |
             apt-get -qq update
-            apt-get -qy install libz3-dev libleveldb1v5
+            apt-get -qy install libz3-dev libleveldb1v5 python3 python3-pip
+            pip3 install codecov
       - run: mkdir -p test_results
       - run: *run_tests
+      - run:
+          name: debug
+          command: |
+            pwd
+            ls -R build
+      - run:
+          name: Upload coverage data
+          command: |
+            codecov --required
       - store_test_results:
           path: test_results/
 
